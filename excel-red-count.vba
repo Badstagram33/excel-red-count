@@ -1,16 +1,28 @@
-Sub CountRedCells()
-    Dim wsSource As Worksheet
-    Dim wsResult As Worksheet
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+    ' Call the CountRedCells macro for each sheet before saving
+    Dim ws As Worksheet
+    Dim rowCount As Integer
+    rowCount = 1
+    
+    For Each ws In ThisWorkbook.Sheets
+        If ws.Name <> "ResultSheet" Then
+            CountRedCells ws, rowCount
+            rowCount = rowCount + 1 ' Move to the next row for the next sheet
+        End If
+    Next ws
+End Sub
+
+Sub CountRedCells(ws As Worksheet, rowCount As Integer)
     Dim sourceRange As Range
     Dim cell As Range
     Dim redCount As Long
     
-    ' Set the source worksheet and range
-    Set wsSource = ThisWorkbook.Sheets("Sheet1") ' Change "Sheet1" to the name of your source sheet
-    Set sourceRange = wsSource.Range("A1:F10") ' Change the range as needed
+    ' Set the source range for the specific sheet
+    Set sourceRange = ws.UsedRange ' You can adjust the range as needed
     
     ' Create or reference the result worksheet
     On Error Resume Next
+    Dim wsResult As Worksheet
     Set wsResult = ThisWorkbook.Sheets("ResultSheet")
     On Error GoTo 0
     
@@ -31,12 +43,9 @@ Sub CountRedCells()
     Next cell
     
     ' Display the count in the result worksheet
-    wsResult.Range("A1").Value = wsSource.Name
-    wsResult.Range("B1").Value = redCount
+    wsResult.Cells(rowCount, 1).Value = ws.Name
+    wsResult.Cells(rowCount, 2).Value = redCount
     
     ' Optionally, you can format the result sheet or cells as needed
-    
-    ' Activate the source sheet (optional)
-    wsSource.Activate
 End Sub
 
